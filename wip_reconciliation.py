@@ -61,7 +61,6 @@ def fval(v):
 
 
 # ── WIP Parser ─────────────────────────────────────────────────────────────────
-@st.cache_data(show_spinner=False)
 def parse_wip(fb):
     xl = pd.ExcelFile(BytesIO(fb), engine="openpyxl")
     rows = []
@@ -126,7 +125,6 @@ INCOME_DESCS = re.compile(
     r"progress|incoming|inward|remit|invoice\s*#\d|deposit.*dmann|dmann.*deposit|"
     r"payment.*stage|stage.*payment", re.IGNORECASE)
 
-@st.cache_data(show_spinner=False)
 def parse_tracker(fb):
     xl = pd.ExcelFile(BytesIO(fb), engine="openpyxl")
     projects = []
