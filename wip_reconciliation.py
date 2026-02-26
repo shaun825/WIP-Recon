@@ -346,17 +346,31 @@ def main():
         wip_file     = st.file_uploader("WIP Ledger (.xlsx)", type=["xlsx","xls"])
         tracker_file = st.file_uploader("Project Tracker (.xlsx)", type=["xlsx","xls"])
 
+        # Save bytes to session state immediately on upload to prevent stream exhaustion
+        if wip_file is not None:
+            st.session_state["wip_bytes"] = wip_file.read()
+        if tracker_file is not None:
+            st.session_state["tracker_bytes"] = tracker_file.read()
+
         wip_df = tracker_data = None
 
-        if wip_file:
-            with st.spinner("Parsing WIP..."):
-                wip_df = parse_wip(wip_file.read())
-            st.success(f"✓ {len(wip_df)} cost lines")
+        if "wip_bytes" in st.session_state:
+            try:
+                with st.spinner("Parsing WIP..."):
+                    wip_df = parse_wip(st.session_state["wip_bytes"])
+                st.success(f"✓ {len(wip_df)} cost lines")
+            except Exception as e:
+                st.error(f"WIP parse error: {e}")
+                del st.session_state["wip_bytes"]
 
-        if tracker_file:
-            with st.spinner("Parsing tracker..."):
-                tracker_data = parse_tracker(tracker_file.read())
-            st.success(f"✓ {len(tracker_data)} projects")
+        if "tracker_bytes" in st.session_state:
+            try:
+                with st.spinner("Parsing tracker..."):
+                    tracker_data = parse_tracker(st.session_state["tracker_bytes"])
+                st.success(f"✓ {len(tracker_data)} projects")
+            except Exception as e:
+                st.error(f"Tracker parse error: {e}")
+                del st.session_state["tracker_bytes"]
 
         sel_tracker = sel_wip = None
 
